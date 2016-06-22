@@ -22,7 +22,7 @@ public class LoginGUI extends JFrame {
     public LoginGUI() {
         super("Login");
         setContentPane(panel1);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         loginButton.addActionListener(new ActionListener() {
             @Override
@@ -39,7 +39,7 @@ public class LoginGUI extends JFrame {
                 boolean passwordAccording = true;
                 String username = createNameField.getText();
                 String password = String.valueOf(createMainPasswordField.getPassword());
-                String passwordCheck = String.valueOf((createCheckingPasswordField.getPassword()));
+                String passwordCheck = String.valueOf(createCheckingPasswordField.getPassword());
 
                 if(password.length() == passwordCheck.length()){
                     if(!password.equals(passwordCheck)){
@@ -50,7 +50,7 @@ public class LoginGUI extends JFrame {
                     passwordAccording = false;
                 }
 
-                if(passwordAccording){
+                if (passwordAccording){
                     //überprüfen ob Name bereits existiert
                     //Name und Passwort in Datenbank einfürgen
                 }
@@ -62,13 +62,5 @@ public class LoginGUI extends JFrame {
         });
         pack();
         setResizable(false);
-    }
-
-    public static void main() {
-        JFrame frame = new JFrame("LoginGUI");
-        frame.setContentPane(new LoginGUI().panel1);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
     }
 }
