@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 /**
  * Created by Dominik on 22.06.2016.
  */
-public class LoginGUI {
+public class LoginGUI extends JFrame {
     private JPanel panel1;
     private JComboBox logincomboBox;
     private JPasswordField loginPasswordField;
@@ -20,6 +20,10 @@ public class LoginGUI {
     private JLabel registerErrorLabel;
 
     public LoginGUI() {
+        super("LoginGUI");
+        setContentPane(panel1);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -56,5 +60,14 @@ public class LoginGUI {
 
             }
         });
+        pack();
+    }
+
+    public static void main() {
+        JFrame frame = new JFrame("LoginGUI");
+        frame.setContentPane(new LoginGUI().panel1);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
     }
 }
