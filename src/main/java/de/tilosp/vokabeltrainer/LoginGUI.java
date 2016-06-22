@@ -20,7 +20,7 @@ public class LoginGUI extends JFrame {
     private JLabel registerErrorLabel;
 
     public LoginGUI() {
-        super("LoginGUI");
+        super("Login");
         setContentPane(panel1);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -61,6 +61,7 @@ public class LoginGUI extends JFrame {
             }
         });
         pack();
+        setResizable(false);
     }
 
     public static void main() {
