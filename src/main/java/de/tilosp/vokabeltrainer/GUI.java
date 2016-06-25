@@ -30,7 +30,7 @@ public class GUI extends JFrame {
     private JComboBox comboBox1;
     private JTable wordTable;
 
-    public GUI() {
+    public GUI(int user_id) {
         super("Vokabeltrainer");
         setContentPane(panel);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
