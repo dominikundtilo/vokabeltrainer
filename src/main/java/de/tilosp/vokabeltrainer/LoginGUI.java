@@ -70,6 +70,7 @@ public class LoginGUI extends JFrame {
                     ResultSet rs = SQL_SELECT_USER.executeQuery();
                     if (rs.next()) {
                         new GUI(rs.getInt(1)).setVisible(true);
+                        dispose();
                     }
                 } catch (SQLException e1) {
                     e1.printStackTrace();
@@ -94,6 +95,13 @@ public class LoginGUI extends JFrame {
                                 SQL_INSERT_USER.setString(1, username);
                                 SQL_INSERT_USER.setString(2, md5(password));
                                 SQL_INSERT_USER.executeUpdate();
+
+                                SQL_SELECT_USER.setString(1, username);
+                                SQL_SELECT_USER.setString(2, md5(password));
+                                ResultSet rs = SQL_SELECT_USER.executeQuery();
+                                rs.next();
+                                new GUI(rs.getInt(1)).setVisible(true);
+                                dispose();
                             } catch (SQLException e1) {
                                 e1.printStackTrace();
                             }
