@@ -5,7 +5,7 @@ import javax.swing.*;
 /**
  * Created by Dominik on 22.06.2016.
  */
-public class GUI {
+public class GUI extends JFrame {
     private JTabbedPane tabbedPane1;
     private JPanel panel;
     private JPanel createPanel;
@@ -30,12 +30,11 @@ public class GUI {
     private JComboBox comboBox1;
     private JTable wordTable;
 
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("GUI");
-        frame.setContentPane(new GUI().panel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
+    public GUI() {
+        super("Vokabeltrainer");
+        setContentPane(panel);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        pack();
     }
 
 
