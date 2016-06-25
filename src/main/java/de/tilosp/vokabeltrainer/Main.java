@@ -40,7 +40,7 @@ public class Main {
 
 
         try {
-            connection = DriverManager.getConnection("jdbc:hsqldb:file:database", "SA", "");
+            connection = DriverManager.getConnection("jdbc:hsqldb:file:vokabeltrainer/database", "SA", "");
             createTables();
             new LoginGUI().setVisible(true);
         } catch (SQLException e) {
