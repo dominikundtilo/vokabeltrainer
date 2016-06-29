@@ -10,7 +10,6 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 
 import static de.tilosp.vokabeltrainer.Main.connection;
@@ -44,7 +43,7 @@ public class LoginGUI extends JFrame {
     private final ArrayList<String> users= new ArrayList<>();
 
     private JPanel panel1;
-    private JComboBox<String> logincomboBox;
+    private JComboBox<String> loginComboBox;
     private JPasswordField loginPasswordField;
     private JButton loginButton;
     private JTextField createNameField;
@@ -61,65 +60,64 @@ public class LoginGUI extends JFrame {
 
         updateUsers();
 
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    SQL_SELECT_USER.setString(1, (String) logincomboBox.getSelectedItem());
-                    SQL_SELECT_USER.setString(2, md5(String.valueOf(loginPasswordField.getPassword())));
-                    ResultSet rs = SQL_SELECT_USER.executeQuery();
-                    if (rs.next()) {
-                        new GUI(rs.getInt(1)).setVisible(true);
-                        dispose();
-                    }
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
+        ActionListener loginListener = e -> {
+            try {
+                SQL_SELECT_USER.setString(1, (String) loginComboBox.getSelectedItem());
+                SQL_SELECT_USER.setString(2, md5(String.valueOf(loginPasswordField.getPassword())));
+                ResultSet rs = SQL_SELECT_USER.executeQuery();
+                if (rs.next()) {
+                    new GUI(rs.getInt(1)).setVisible(true);
+                    dispose();
                 }
+            } catch (SQLException e1) {
+                e1.printStackTrace();
             }
-        });
+        };
+        loginButton.addActionListener(loginListener);
+        loginPasswordField.addActionListener(loginListener);
 
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                registerErrorLabel.setText("");
+        ActionListener registerListener = e -> {
+            registerErrorLabel.setText("");
 
-                boolean passwordAccording = true;
-                String username = createNameField.getText();
-                String password = String.valueOf(createMainPasswordField.getPassword());
-                String passwordCheck = String.valueOf(createCheckingPasswordField.getPassword());
+            boolean passwordAccording = true;
+            String username = createNameField.getText();
+            String password = String.valueOf(createMainPasswordField.getPassword());
+            String passwordCheck = String.valueOf(createCheckingPasswordField.getPassword());
 
-                if (password.equals(passwordCheck)){
-                    if (password.length() >= 4) {
-                        if (!users.contains(username)) {
-                            try {
-                                SQL_INSERT_USER.setString(1, username);
-                                SQL_INSERT_USER.setString(2, md5(password));
-                                SQL_INSERT_USER.executeUpdate();
+            if (password.equals(passwordCheck)){
+                if (password.length() >= 4) {
+                    if (!users.contains(username)) {
+                        try {
+                            SQL_INSERT_USER.setString(1, username);
+                            SQL_INSERT_USER.setString(2, md5(password));
+                            SQL_INSERT_USER.executeUpdate();
 
-                                SQL_SELECT_USER.setString(1, username);
-                                SQL_SELECT_USER.setString(2, md5(password));
-                                ResultSet rs = SQL_SELECT_USER.executeQuery();
-                                rs.next();
-                                new GUI(rs.getInt(1)).setVisible(true);
-                                dispose();
-                            } catch (SQLException e1) {
-                                e1.printStackTrace();
-                            }
-                            updateUsers();
-                        } else {
-                            registerErrorLabel.setText("Username is already in use");
+                            SQL_SELECT_USER.setString(1, username);
+                            SQL_SELECT_USER.setString(2, md5(password));
+                            ResultSet rs = SQL_SELECT_USER.executeQuery();
+                            rs.next();
+                            new GUI(rs.getInt(1)).setVisible(true);
+                            dispose();
+                        } catch (SQLException e1) {
+                            e1.printStackTrace();
                         }
+                        updateUsers();
                     } else {
-                        registerErrorLabel.setText("Password too short");
+                        registerErrorLabel.setText("Username is already in use");
                     }
-
-                }
-                else {
-                    registerErrorLabel.setText("Passwörter stimmen nicht über ein");
+                } else {
+                    registerErrorLabel.setText("Password too short");
                 }
 
             }
-        });
+            else {
+                registerErrorLabel.setText("Passwörter stimmen nicht über ein");
+            }
+
+        };
+        createCheckingPasswordField.addActionListener(registerListener);
+        registerButton.addActionListener(registerListener);
+
         pack();
         setResizable(false);
     }
@@ -131,7 +129,7 @@ public class LoginGUI extends JFrame {
                 String s = rs.getString(1);
                 if (!users.contains(s)) {
                     users.add(s);
-                    logincomboBox.addItem(s);
+                    loginComboBox.addItem(s);
                 }
             }
         } catch (SQLException e) {
