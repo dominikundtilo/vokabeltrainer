@@ -79,7 +79,6 @@ public class LoginGUI extends JFrame {
         ActionListener registerListener = e -> {
             registerErrorLabel.setText("");
 
-            boolean passwordAccording = true;
             String username = createNameField.getText();
             String password = String.valueOf(createMainPasswordField.getPassword());
             String passwordCheck = String.valueOf(createCheckingPasswordField.getPassword());
