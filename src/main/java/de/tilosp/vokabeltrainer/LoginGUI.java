@@ -1,5 +1,7 @@
 package de.tilosp.vokabeltrainer;
 
+import de.tilosp.vokabeltrainer.localisation.Localisation;
+
 import javax.swing.*;
 import javax.xml.bind.DatatypeConverter;
 import java.awt.event.ActionEvent;
@@ -54,7 +56,7 @@ public class LoginGUI extends JFrame {
     private JLabel registerErrorLabel;
 
     public LoginGUI() {
-        super("Login");
+        super(Localisation.getString("login_gui"));
         setContentPane(panel1);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
