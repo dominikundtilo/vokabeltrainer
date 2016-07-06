@@ -102,7 +102,6 @@ public class LoginGUI extends JFrame {
                         } catch (SQLException e1) {
                             e1.printStackTrace();
                         }
-                        updateUsers();
                     } else {
                         registerErrorLabel.setText("Username is already in use");
                     }
