@@ -1,5 +1,7 @@
 package de.tilosp.vokabeltrainer;
 
+import de.tilosp.vokabeltrainer.localisation.Localisation;
+
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
@@ -68,7 +70,7 @@ public class GUI extends JFrame {
     }
 
     public GUI(int user_id, String username) {
-        super("Vokabeltrainer");
+        super(Localisation.getString("main_gui"));
         this.user_id = user_id;
         userNameLabel.setText(username);
         setContentPane(panel);
