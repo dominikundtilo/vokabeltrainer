@@ -16,7 +16,6 @@ import static de.tilosp.vokabeltrainer.Main.connection;
 public class GUI extends JFrame {
     private int user_id;
     private ArrayList<Integer> subject_mapping = new ArrayList<>();
-    private boolean sync = true;
 
     private JTabbedPane tabbedPane1;
     private JPanel panel;
@@ -28,20 +27,19 @@ public class GUI extends JFrame {
     private JLabel secondaryLanguage;
     private JTextField inputPrimaryWord;
     private JTextField inputSeondaryWord;
-    private JComboBox<String> chosenLanguageAdd;
     private JTextField firstLanguageInput;
     private JTextField secondLanguageInput;
     private JButton addSubjectButton;
     private JCheckBox swapDirektionCheckBox;
     private JLabel seenWord;
     private JLabel knownWord;
-    private JComboBox<String> chosenLanguagePractice;
     private JButton showButton;
     private JButton knownButton;
     private JButton unknownButton;
-    private JComboBox<String> chosenLanguageEdit;
     private JTable wordTable;
-    private JLabel errorLabel;
+    private JComboBox<String> subjectComboBox;
+    private JButton logoutButton;
+    private JLabel userNameLabel;
 
     private static PreparedStatement SQL_INSERT_SUBJECT;
     private static PreparedStatement SQL_SELECT_SUBJECTS;
@@ -57,39 +55,23 @@ public class GUI extends JFrame {
         }
     }
 
-    public GUI(int user_id) {
+    public GUI(int user_id, String username) {
         super("Vokabeltrainer");
         this.user_id = user_id;
+        userNameLabel.setText(username);
         setContentPane(panel);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         pack();
 
         addSubjectButton.addActionListener(e -> createSubject(firstLanguageInput.getText(), secondLanguageInput.getText()));
+        subjectComboBox.addActionListener(e -> updateLanguage());
+        logoutButton.addActionListener(e -> {
+            new LoginGUI().setVisible(true);
+            dispose();
+        });
 
         updateLanguages();
         updateLanguage();
-
-        chosenLanguageAdd.addActionListener(e -> {
-            if (sync) {
-                chosenLanguageEdit.setSelectedIndex(chosenLanguageAdd.getSelectedIndex());
-                chosenLanguagePractice.setSelectedIndex(chosenLanguageAdd.getSelectedIndex());
-                updateLanguage();
-            }
-        });
-        chosenLanguageEdit.addActionListener(e -> {
-            if (sync) {
-                chosenLanguageAdd.setSelectedIndex(chosenLanguageEdit.getSelectedIndex());
-                chosenLanguagePractice.setSelectedIndex(chosenLanguageEdit.getSelectedIndex());
-                updateLanguage();
-            }
-        });
-        chosenLanguagePractice.addActionListener(e -> {
-            if (sync) {
-                chosenLanguageAdd.setSelectedIndex(chosenLanguagePractice.getSelectedIndex());
-                chosenLanguageEdit.setSelectedIndex(chosenLanguagePractice.getSelectedIndex());
-                updateLanguage();
-            }
-        });
     }
 
     private void createSubject(String language1, String language2){
@@ -129,14 +111,14 @@ public class GUI extends JFrame {
             updateLanguages();
         }
         else {
-            errorLabel.setText("Fächerkombination existiert bereits");
+            JOptionPane.showMessageDialog(this, "Fächerkombination existiert bereits", "Fächerkombination existiert bereits", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
     private void updateLanguage() {
-        if (chosenLanguageAdd.getSelectedIndex() != -1) {
+        if (subject_mapping.size() > 0) {
             try {
-                SQL_SELECT_SUBJECT.setInt(1, subject_mapping.get(chosenLanguageAdd.getSelectedIndex()));
+                SQL_SELECT_SUBJECT.setInt(1, subject_mapping.get(subjectComboBox.getSelectedIndex()));
                 ResultSet rs = SQL_SELECT_SUBJECT.executeQuery();
                 rs.next();
                 primaryLanguage.setText(rs.getString(1));
@@ -153,24 +135,15 @@ public class GUI extends JFrame {
             SQL_SELECT_SUBJECTS.setInt(1, user_id);
             ResultSet rs = SQL_SELECT_SUBJECTS.executeQuery();
 
-            sync = false;
-            while (rs.next()){
-                int id = rs.getInt(1);
-                if (!subject_mapping.contains(id)) {
-                    subject_mapping.add(id);
-                    String cl1 = rs.getString(2);
-                    String cl2 = rs.getString(3);
+            int oldSelection = subjectComboBox.getSelectedIndex();
+            subjectComboBox.removeAllItems();
+            subject_mapping.clear();
 
-                    chosenLanguageAdd.addItem(cl1 + " - " + cl2);
-                    chosenLanguagePractice.addItem(cl1 + " - " + cl2);
-                    chosenLanguageEdit.addItem(cl1 + " - " + cl2);
-                }
+            while (rs.next()){
+                subject_mapping.add(rs.getInt(1));
+
+                subjectComboBox.addItem(rs.getString(2) + " - " + rs.getString(3));
             }
-            chosenLanguageAdd.setSelectedIndex(chosenLanguageAdd.getItemCount() - 1);
-            chosenLanguageEdit.setSelectedIndex(chosenLanguageEdit.getItemCount() - 1);
-            chosenLanguagePractice.setSelectedIndex(chosenLanguagePractice.getItemCount() - 1);
-            sync = true;
-            updateLanguage();
 
         } catch (SQLException e) {
             e.printStackTrace();

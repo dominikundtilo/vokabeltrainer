@@ -68,7 +68,7 @@ public class LoginGUI extends JFrame {
                 SQL_SELECT_USER.setString(2, md5(String.valueOf(loginPasswordField.getPassword())));
                 ResultSet rs = SQL_SELECT_USER.executeQuery();
                 if (rs.next()) {
-                    new GUI(rs.getInt(1)).setVisible(true);
+                    new GUI(rs.getInt(1), (String) loginComboBox.getSelectedItem()).setVisible(true);
                     dispose();
                 }
             } catch (SQLException e1) {
@@ -97,7 +97,7 @@ public class LoginGUI extends JFrame {
                             SQL_SELECT_USER.setString(2, md5(password));
                             ResultSet rs = SQL_SELECT_USER.executeQuery();
                             rs.next();
-                            new GUI(rs.getInt(1)).setVisible(true);
+                            new GUI(rs.getInt(1), username).setVisible(true);
                             dispose();
                         } catch (SQLException e1) {
                             e1.printStackTrace();
