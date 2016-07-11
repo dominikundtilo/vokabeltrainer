@@ -1,6 +1,8 @@
 package de.tilosp.vokabeltrainer;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.AbstractTableModel;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,6 +16,8 @@ import static de.tilosp.vokabeltrainer.Main.connection;
 public class GUI extends JFrame {
     private int user_id;
     private ArrayList<Integer> subject_mapping = new ArrayList<>();
+    private String[] columnNames = { "ID", "", "", "Level" };
+    private ArrayList<String[]> rowData = new ArrayList<>();
 
     private JPanel panel;
     private JButton addVocable;
@@ -39,6 +43,7 @@ public class GUI extends JFrame {
     private static PreparedStatement SQL_SELECT_SUBJECTS;
     private static PreparedStatement SQL_SELECT_SUBJECT;
     private static PreparedStatement SQL_INSERT_VOCABLE;
+    private static PreparedStatement SQL_SELECT_VOCABLES;
 
     static {
         try {
@@ -46,6 +51,7 @@ public class GUI extends JFrame {
             SQL_SELECT_SUBJECTS = connection.prepareStatement("SELECT subject_id, language_1, language_2 FROM subject WHERE user_id = ?");
             SQL_SELECT_SUBJECT = connection.prepareStatement("SELECT language_1, language_2 FROM subject WHERE subject_id = ?");
             SQL_INSERT_VOCABLE = connection.prepareStatement("INSERT INTO vocable (subject_id, word_1, word_2, level) VALUES (?, ?, ?, 0)");
+            SQL_SELECT_VOCABLES = connection.prepareStatement("SELECT vocable_id, word_1, word_2, level FROM vocable WHERE subject_id = ?");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -66,6 +72,12 @@ public class GUI extends JFrame {
             dispose();
         });
         addVocable.addActionListener(e -> createVocable(vocable1TextArea.getText(), vocable2TextArea.getText()));
+        wordTable.setModel(new AbstractTableModel() {
+            public String getColumnName(int column) { return columnNames[column]; }
+            public int getRowCount() { return rowData.size(); }
+            public int getColumnCount() { return columnNames.length; }
+            public Object getValueAt(int row, int col) { return rowData.get(row)[col]; }
+        });
 
         updateLanguages();
         updateLanguage();
@@ -83,6 +95,7 @@ public class GUI extends JFrame {
 
                 vocable1TextArea.setText("");
                 vocable2TextArea.setText("");
+                updateWords();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -138,12 +151,27 @@ public class GUI extends JFrame {
                 SQL_SELECT_SUBJECT.setInt(1, subject_mapping.get(subjectComboBox.getSelectedIndex()));
                 ResultSet rs = SQL_SELECT_SUBJECT.executeQuery();
                 rs.next();
-                primaryLanguage.setText(rs.getString(1));
-                secondaryLanguage.setText(rs.getString(2));
-
+                primaryLanguage.setText(columnNames[1] = rs.getString(1));
+                secondaryLanguage.setText(columnNames[2] = rs.getString(2));
+                wordTable.tableChanged(new TableModelEvent(wordTable.getModel(), TableModelEvent.HEADER_ROW));
+                updateWords();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void updateWords() {
+        try {
+            SQL_SELECT_VOCABLES.setInt(1, subject_mapping.get(subjectComboBox.getSelectedIndex()));
+            ResultSet rs = SQL_SELECT_VOCABLES.executeQuery();
+            rowData.clear();
+            while (rs.next()) {
+                rowData.add(new String[] { Integer.toString(rs.getInt(1)), rs.getString(2), rs.getString(3), Integer.toString(rs.getInt(4)) });
+            }
+            wordTable.addNotify();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -169,6 +197,7 @@ public class GUI extends JFrame {
     private void createUIComponents() {
 
         wordTable = new JTable();
+        wordTable.getTableHeader().setReorderingAllowed(false);
     }
 
 }
