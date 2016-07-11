@@ -1,8 +1,6 @@
 package de.tilosp.vokabeltrainer;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,16 +15,10 @@ public class GUI extends JFrame {
     private int user_id;
     private ArrayList<Integer> subject_mapping = new ArrayList<>();
 
-    private JTabbedPane tabbedPane1;
     private JPanel panel;
-    private JPanel createPanel;
-    private JPanel practicePanel;
-    private JPanel editPanel;
-    private JButton addWord;
+    private JButton addVocable;
     private JLabel primaryLanguage;
     private JLabel secondaryLanguage;
-    private JTextField inputPrimaryWord;
-    private JTextField inputSeondaryWord;
     private JTextField firstLanguageInput;
     private JTextField secondLanguageInput;
     private JButton addSubjectButton;
@@ -40,16 +32,20 @@ public class GUI extends JFrame {
     private JComboBox<String> subjectComboBox;
     private JButton logoutButton;
     private JLabel userNameLabel;
+    private JTextArea vocable1TextArea;
+    private JTextArea vocable2TextArea;
 
     private static PreparedStatement SQL_INSERT_SUBJECT;
     private static PreparedStatement SQL_SELECT_SUBJECTS;
     private static PreparedStatement SQL_SELECT_SUBJECT;
+    private static PreparedStatement SQL_INSERT_VOCABLE;
 
     static {
         try {
             SQL_INSERT_SUBJECT = connection.prepareStatement("INSERT INTO subject (user_id, language_1, language_2) VALUES (?, ?, ?)");
             SQL_SELECT_SUBJECTS = connection.prepareStatement("SELECT subject_id, language_1, language_2 FROM subject WHERE user_id = ?");
             SQL_SELECT_SUBJECT = connection.prepareStatement("SELECT language_1, language_2 FROM subject WHERE subject_id = ?");
+            SQL_INSERT_VOCABLE = connection.prepareStatement("INSERT INTO vocable (subject_id, word_1, word_2, level) VALUES (?, ?, ?, 0)");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -69,9 +65,28 @@ public class GUI extends JFrame {
             new LoginGUI().setVisible(true);
             dispose();
         });
+        addVocable.addActionListener(e -> createVocable(vocable1TextArea.getText(), vocable2TextArea.getText()));
 
         updateLanguages();
         updateLanguage();
+    }
+
+    private void createVocable(String word1, String word2) {
+        if (word1.length() < 1 || word2.length() < 1)
+            return;
+        if (subjectComboBox.getSelectedIndex() != -1) {
+            try {
+                SQL_INSERT_VOCABLE.setInt(1, subject_mapping.get(subjectComboBox.getSelectedIndex()));
+                SQL_INSERT_VOCABLE.setString(2, word1);
+                SQL_INSERT_VOCABLE.setString(3, word2);
+                SQL_INSERT_VOCABLE.executeUpdate();
+
+                vocable1TextArea.setText("");
+                vocable2TextArea.setText("");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void createSubject(String language1, String language2){
@@ -109,6 +124,8 @@ public class GUI extends JFrame {
                 e.printStackTrace();
             }
             updateLanguages();
+            subjectComboBox.setSelectedIndex(subjectComboBox.getItemCount() - 1);
+            updateLanguage();
         }
         else {
             JOptionPane.showMessageDialog(this, "Fächerkombination existiert bereits", "Fächerkombination existiert bereits", JOptionPane.INFORMATION_MESSAGE);
@@ -116,7 +133,7 @@ public class GUI extends JFrame {
     }
 
     private void updateLanguage() {
-        if (subject_mapping.size() > 0) {
+        if (subjectComboBox.getSelectedIndex() != -1) {
             try {
                 SQL_SELECT_SUBJECT.setInt(1, subject_mapping.get(subjectComboBox.getSelectedIndex()));
                 ResultSet rs = SQL_SELECT_SUBJECT.executeQuery();
@@ -135,7 +152,6 @@ public class GUI extends JFrame {
             SQL_SELECT_SUBJECTS.setInt(1, user_id);
             ResultSet rs = SQL_SELECT_SUBJECTS.executeQuery();
 
-            int oldSelection = subjectComboBox.getSelectedIndex();
             subjectComboBox.removeAllItems();
             subject_mapping.clear();
 
