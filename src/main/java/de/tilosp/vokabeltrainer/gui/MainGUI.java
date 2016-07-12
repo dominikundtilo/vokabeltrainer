@@ -15,7 +15,7 @@ import static de.tilosp.vokabeltrainer.Main.connection;
 /**
  * Created by Dominik on 22.06.2016.
  */
-public class GUI extends JFrame {
+public class MainGUI extends JFrame {
     private int user_id;
     private int selected_word_id = -1;
     private String word2;
@@ -67,7 +67,7 @@ public class GUI extends JFrame {
         }
     }
 
-    public GUI(int user_id, String username) {
+    public MainGUI(int user_id, String username) {
         super(Localisation.getString("main_gui"));
         this.user_id = user_id;
         userNameLabel.setText(username);
