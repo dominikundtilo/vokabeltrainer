@@ -1,4 +1,4 @@
-package de.tilosp.vokabeltrainer;
+package de.tilosp.vokabeltrainer.gui;
 
 import de.tilosp.vokabeltrainer.localisation.Localisation;
 

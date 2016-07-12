@@ -1,10 +1,9 @@
-package de.tilosp.vokabeltrainer;
+package de.tilosp.vokabeltrainer.gui;
 
 import de.tilosp.vokabeltrainer.localisation.Localisation;
 
 import javax.swing.*;
 import javax.xml.bind.DatatypeConverter;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
