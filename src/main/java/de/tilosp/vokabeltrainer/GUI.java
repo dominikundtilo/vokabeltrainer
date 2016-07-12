@@ -3,6 +3,8 @@ package de.tilosp.vokabeltrainer;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,6 +17,8 @@ import static de.tilosp.vokabeltrainer.Main.connection;
  */
 public class GUI extends JFrame {
     private int user_id;
+    private int selected_word_id = -1;
+    private String word2;
     private ArrayList<Integer> subject_mapping = new ArrayList<>();
     private String[] columnNames = { "ID", "", "", "Level" };
     private ArrayList<String[]> rowData = new ArrayList<>();
@@ -27,8 +31,6 @@ public class GUI extends JFrame {
     private JTextField secondLanguageInput;
     private JButton addSubjectButton;
     private JCheckBox swapDirektionCheckBox;
-    private JLabel seenWord;
-    private JLabel knownWord;
     private JButton showButton;
     private JButton knownButton;
     private JButton unknownButton;
@@ -38,12 +40,18 @@ public class GUI extends JFrame {
     private JLabel userNameLabel;
     private JTextArea vocable1TextArea;
     private JTextArea vocable2TextArea;
+    private JTextArea word1Practise;
+    private JTextArea word2Practise;
+    private JLabel primaryLanguage1;
+    private JLabel secondaryLanguage1;
 
     private static PreparedStatement SQL_INSERT_SUBJECT;
     private static PreparedStatement SQL_SELECT_SUBJECTS;
     private static PreparedStatement SQL_SELECT_SUBJECT;
     private static PreparedStatement SQL_INSERT_VOCABLE;
     private static PreparedStatement SQL_SELECT_VOCABLES;
+    private static PreparedStatement SQL_SELECT_VOCABLE;
+    private static PreparedStatement SQL_UPDATE_VOCABLE;
 
     static {
         try {
@@ -52,6 +60,8 @@ public class GUI extends JFrame {
             SQL_SELECT_SUBJECT = connection.prepareStatement("SELECT language_1, language_2 FROM subject WHERE subject_id = ?");
             SQL_INSERT_VOCABLE = connection.prepareStatement("INSERT INTO vocable (subject_id, word_1, word_2, level) VALUES (?, ?, ?, 0)");
             SQL_SELECT_VOCABLES = connection.prepareStatement("SELECT vocable_id, word_1, word_2, level FROM vocable WHERE subject_id = ?");
+            SQL_SELECT_VOCABLE = connection.prepareStatement("SELECT vocable_id, word_1, word_2 FROM vocable WHERE subject_id = ? ORDER BY level, RAND() LIMIT 1");
+            SQL_UPDATE_VOCABLE = connection.prepareStatement("UPDATE vocable SET level = ((level + ?) + ABS(level + ?)) / 2 WHERE vocable_id = ?");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -81,6 +91,65 @@ public class GUI extends JFrame {
 
         updateLanguages();
         updateLanguage();
+        showButton.addActionListener(e -> showSecondWord());
+        unknownButton.addActionListener(e -> {
+            try {
+                SQL_UPDATE_VOCABLE.setInt(1, -2);
+                SQL_UPDATE_VOCABLE.setInt(2, -2);
+                SQL_UPDATE_VOCABLE.setInt(3, selected_word_id);
+                SQL_UPDATE_VOCABLE.executeUpdate();
+                updateWords();
+                showRandomWord();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+        knownButton.addActionListener(e -> {
+            try {
+                SQL_UPDATE_VOCABLE.setInt(1, 1);
+                SQL_UPDATE_VOCABLE.setInt(2, 1);
+                SQL_UPDATE_VOCABLE.setInt(3, selected_word_id);
+                SQL_UPDATE_VOCABLE.executeUpdate();
+                updateWords();
+                showRandomWord();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+        swapDirektionCheckBox.addActionListener(e -> showRandomWord());
+    }
+
+    private void showSecondWord() {
+        word2Practise.setText(word2);
+        unknownButton.setEnabled(true);
+        knownButton.setEnabled(true);
+        showButton.setEnabled(false);
+    }
+
+    private void showRandomWord() {
+        if (subjectComboBox.getSelectedIndex() != -1) {
+            try {
+                SQL_SELECT_VOCABLE.setInt(1, subject_mapping.get(subjectComboBox.getSelectedIndex()));
+                ResultSet rs = SQL_SELECT_VOCABLE.executeQuery();
+                if (rs.next()) {
+                    selected_word_id = rs.getInt(1);
+                    word1Practise.setText(rs.getString(swapDirektionCheckBox.isSelected() ? 3 : 2));
+                    word2Practise.setText("");
+                    word2 = rs.getString(swapDirektionCheckBox.isSelected() ? 2 : 3);
+                    showButton.setEnabled(true);
+                    unknownButton.setEnabled(false);
+                    knownButton.setEnabled(false);
+                } else {
+                    word1Practise.setText("");
+                    word2Practise.setText("");
+                    showButton.setEnabled(false);
+                    unknownButton.setEnabled(false);
+                    knownButton.setEnabled(false);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void createVocable(String word1, String word2) {
@@ -96,6 +165,7 @@ public class GUI extends JFrame {
                 vocable1TextArea.setText("");
                 vocable2TextArea.setText("");
                 updateWords();
+                showRandomWord();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -151,10 +221,14 @@ public class GUI extends JFrame {
                 SQL_SELECT_SUBJECT.setInt(1, subject_mapping.get(subjectComboBox.getSelectedIndex()));
                 ResultSet rs = SQL_SELECT_SUBJECT.executeQuery();
                 rs.next();
-                primaryLanguage.setText(columnNames[1] = rs.getString(1));
-                secondaryLanguage.setText(columnNames[2] = rs.getString(2));
+                String l1 = rs.getString(1), l2 = rs.getString(2);
+                primaryLanguage.setText(l1);
+                secondaryLanguage.setText(l2);
+                primaryLanguage1.setText(columnNames[1] = l1);
+                secondaryLanguage1.setText(columnNames[2] = l2);
                 wordTable.tableChanged(new TableModelEvent(wordTable.getModel(), TableModelEvent.HEADER_ROW));
                 updateWords();
+                showRandomWord();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
