@@ -8,7 +8,7 @@ plugins {
     id "org.jetbrains.intellij" version "0.1.8"
 }
 
-group 'de.tilosp.vokabeltrainer'
+group 'com.github.dominikundtilo.vokabeltrainer'
 version '1.0'
 
 apply plugin: 'java'

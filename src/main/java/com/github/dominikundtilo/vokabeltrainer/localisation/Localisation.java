@@ -1,4 +1,4 @@
-package de.tilosp.vokabeltrainer.localisation;
+package com.github.dominikundtilo.vokabeltrainer.localisation;
 
 import java.util.ResourceBundle;
 

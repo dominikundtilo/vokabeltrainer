@@ -1,6 +1,6 @@
-package de.tilosp.vokabeltrainer.gui;
+package com.github.dominikundtilo.vokabeltrainer.gui;
 
-import de.tilosp.vokabeltrainer.localisation.Localisation;
+import com.github.dominikundtilo.vokabeltrainer.localisation.Localisation;
 
 import javax.swing.*;
 import javax.xml.bind.DatatypeConverter;
@@ -13,7 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import static de.tilosp.vokabeltrainer.Main.connection;
+import static com.github.dominikundtilo.vokabeltrainer.Main.connection;
 
 /**
  * Created by Dominik on 22.06.2016.

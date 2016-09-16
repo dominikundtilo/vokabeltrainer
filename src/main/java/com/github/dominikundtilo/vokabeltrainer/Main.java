@@ -1,6 +1,6 @@
-package de.tilosp.vokabeltrainer;
+package com.github.dominikundtilo.vokabeltrainer;
 
-import de.tilosp.vokabeltrainer.gui.LoginGUI;
+import com.github.dominikundtilo.vokabeltrainer.gui.LoginGUI;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
